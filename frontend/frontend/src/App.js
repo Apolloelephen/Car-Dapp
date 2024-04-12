@@ -1,90 +1,74 @@
 import { useState } from "react";
-import { ethers } from "ethers";
-import contractABI from "./abi.json";
 import "./App.css";
+import { getCar, setCar } from "./services";
 
 function App() {
-  const contractAddress = "0x6C747Ed0405c44f789DabA22db9a33645637F103";
+  const [color, setColor] = useState("");
+  const [brand, setBrand] = useState("");
+  const [model, setModel] = useState("");
+  const [carDetails, setcarDetails] = useState(null);
 
-  async function requestAccount() {
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-  }
+  const sendMessageToContract = async () => {
+    await setCar(color, brand, model);
+  };
 
-  const [inputMessage, setInputMessage] = useState(""); // Renamed state variable
-  const [getmsg, setGetmsg] = useState(" ");
-  async function sendMessageToContract() {
-    // Renamed function
-    if (typeof window.ethereum !== "undefined") {
-      await requestAccount();
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
-
-      try {
-        const transaction = await contract.setMessage(inputMessage);
-        await transaction.wait();
-        alert("Successful");
-        setInputMessage(" ");
-      } catch (err) {
-        console.error("Error:", err);
-      }
-    }
-  }
-
-  async function getMessageToContract() {
-    // Renamed function
-    if (typeof window.ethereum !== "undefined") {
-      await requestAccount();
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
-
-      try {
-        const transaction = await contract.getMessage();
-        setGetmsg(transaction);
-        console.log(transaction);
-      } catch (err) {
-        console.error("Error:", err);
-      }
-    }
-  }
-
-  const handleMessageChange = (e) => {
-    setInputMessage(e.target.value);
+  const getMessageToContract = async () => {
+    const car = await getCar();
+    setcarDetails(car);
   };
 
   return (
     <div className="App">
-      <div>
-        <h1>My DAPP</h1>
-        <h2>Blockchain and Frontend integration</h2>
+      <div className="container">
+        <h1>All About Cars</h1>
         <h3>
-          <i>Message Getter and Setter call</i>
+          <i>Order your cars seamlessly</i>
         </h3>
         <br />
+        <div className="container">
         <input
           type="text"
-          placeholder="Type in your message here"
-          value={inputMessage}
-          onChange={handleMessageChange}
+          className="input"
+          placeholder="input your color"
+          value={color}
+          onChange={(e) => {
+            setColor(e.target.value);
+          }}
         />
+        <input
+          type="text"
+          className="input"
+          placeholder="input your brand"
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        />
+        <input
+          type="text"
+          className="input"
+          placeholder="input your model"
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+        />
+        </div>
         <br /> <br />
-        <button onClick={sendMessageToContract}>Set Message</button>
-        <br /> <br />
-        <button onClick={getMessageToContract}>Get Message</button>
+        <button onClick={sendMessageToContract} className="button">Place your car Order</button>
+        <button onClick={getMessageToContract} className="button">get your car Order</button>
       </div>
-      <div>
-        <p>{getmsg}</p>
+        <div className="container">
+      {carDetails === null ? (
+        <div className="result">No Orders Yet</div>
+      ) : (
+        <div className="result">
+          <ol>
+            <li>Car Color: {carDetails.color}</li>
+            <li>Car Brand: {carDetails.brand}</li>
+            <li>Car Model: {carDetails.model}</li>
 
-        <button onClick={() => setGetmsg(" ")}>Clear message</button>
+            <li></li>
+            <li></li>
+          </ol>
+        </div>
+      )}
       </div>
     </div>
   );
