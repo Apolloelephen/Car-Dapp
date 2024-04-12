@@ -63,9 +63,6 @@ function App() {
             <li>Car Color: {carDetails.color}</li>
             <li>Car Brand: {carDetails.brand}</li>
             <li>Car Model: {carDetails.model}</li>
-
-            <li></li>
-            <li></li>
           </ol>
         </div>
       )}
